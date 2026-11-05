@@ -36,7 +36,11 @@ jobs:
             cmake libffi-dev libssl-dev \
             libltdl-dev \
             build-essential ccache
-          java -version
+          # Java 17 を明示
+          echo "JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64" >> $GITHUB_ENV
+          echo "/usr/lib/jvm/temurin-17-jdk-amd64/bin" >> $GITHUB_PATH
+          java -version || true
+          /usr/lib/jvm/temurin-17-jdk-amd64/bin/java -version
 
       - name: Install Buildozer (pin pip/cython)
         run: |
@@ -45,15 +49,25 @@ jobs:
 
       - name: Build APK (debug)
         if: ${{ github.event.inputs.debug_build != 'false' }}
-        run: buildozer -v android debug
+        run: |
+          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
+          export PATH="$JAVA_HOME/bin:$PATH"
+          java -version
+          buildozer -v android debug
         env:
           BUILDOZER_WARN_ON_ROOT: "0"
+          JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
 
       - name: Build APK (release)
         if: ${{ github.event.inputs.debug_build == 'false' }}
-        run: buildozer -v android release
+        run: |
+          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
+          export PATH="$JAVA_HOME/bin:$PATH"
+          java -version
+          buildozer -v android release
         env:
           BUILDOZER_WARN_ON_ROOT: "0"
+          JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
 
       - name: List output
         run: |
