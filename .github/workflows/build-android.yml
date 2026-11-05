@@ -1,0 +1,90 @@
+name: Build Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      debug_build:
+        description: 'Build debug APK (faster)'
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache Buildozer & SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: Install system dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y \
+            git unzip openjdk-17-jdk wget curl \
+            autoconf libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo5 \
+            cmake libffi-dev libssl-dev \
+            libltdl-dev \
+            build-essential ccache
+          java -version
+
+      - name: Install Buildozer & Cython
+        run: |
+          pip install --upgrade pip
+          pip install cython==0.29.36 buildozer==1.5.0
+
+      - name: Build APK (debug)
+        if: ${{ github.event.inputs.debug_build != 'false' }}
+        run: |
+          buildozer -v android debug
+        env:
+          BUILDOZER_WARN_ON_ROOT: "0"
+
+      - name: Build APK (release)
+        if: ${{ github.event.inputs.debug_build == 'false' }}
+        run: |
+          buildozer -v android release
+        env:
+          BUILDOZER_WARN_ON_ROOT: "0"
+
+      - name: List output
+        run: |
+          ls -la bin/ || true
+          find . -name "*.apk" 2>/dev/null || true
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RiseSim-apk
+          path: |
+            bin/*.apk
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload to Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bin/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

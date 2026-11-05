@@ -1,0 +1,27 @@
+# Buildozer
+.buildozer/
+bin/
+*.apk
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local saves (optional - remove if you want to track)
+# save/*.csv

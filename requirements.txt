@@ -1,0 +1,6 @@
+# Desktop
+ortools>=9.8
+kivy>=2.3.0
+
+# Note: Android build uses buildozer.spec requirements
+# (ortools is NOT included on Android; pure-Python searcher is used)
