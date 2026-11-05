@@ -25,16 +25,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache Buildozer & SDK
-        uses: actions/cache@v4
-        with:
-          path: |
-            \~/.buildozer
-            .buildozer
-          key: buildozer-\( {{ runner.os }}- \){{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            buildozer-${{ runner.os }}-
-
       - name: Install system dependencies
         run: |
           sudo dpkg --add-architecture i386
@@ -48,22 +38,20 @@ jobs:
             build-essential ccache
           java -version
 
-      - name: Install Buildozer & Cython
+      - name: Install Buildozer (pin pip/cython)
         run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36 buildozer==1.5.0
+          python -m pip install --upgrade "pip==24.0" setuptools wheel
+          python -m pip install "cython==0.29.36" "buildozer==1.5.0"
 
       - name: Build APK (debug)
         if: ${{ github.event.inputs.debug_build != 'false' }}
-        run: |
-          buildozer -v android debug
+        run: buildozer -v android debug
         env:
           BUILDOZER_WARN_ON_ROOT: "0"
 
       - name: Build APK (release)
         if: ${{ github.event.inputs.debug_build == 'false' }}
-        run: |
-          buildozer -v android release
+        run: buildozer -v android release
         env:
           BUILDOZER_WARN_ON_ROOT: "0"
 
@@ -76,8 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: RiseSim-apk
-          path: |
-            bin/*.apk
+          path: bin/*.apk
           if-no-files-found: warn
           retention-days: 30
 

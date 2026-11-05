@@ -17,12 +17,13 @@ android.api = 33
 android.minapi = 24
 android.ndk = 25b
 android.accept_sdk_license = True
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 android.allow_backup = True
-
-# Copy data next to the app
 android.add_assets = data
+
+# 安定版 p4a（Python 3.14 デフォルトを避ける）
+p4a.branch = v2024.01.21
 
 presplash.color = #1a1a2e
 android.presplash_color = #1a1a2e
