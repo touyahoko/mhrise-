@@ -9,7 +9,7 @@ source.exclude_dirs = tests,bin,venv,.git,__pycache__,.buildozer
 source.exclude_patterns = test_*.py,*.pyc
 version = 0.1.0
 
-requirements = python3,kivy==2.3.0,pyjnius,android,plyer
+requirements = python3==3.11.10,kivy==2.3.0,pyjnius,android,plyer
 
 orientation = portrait
 fullscreen = 0
